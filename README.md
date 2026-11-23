@@ -2,11 +2,11 @@
 
 Personal Discord bot for **Tom Clancy's The Division 2**. Slash commands for brands, gear sets, named gear, talents, and exotics, plus Escalation: the weekly mission list, each mission's daily target loot, and the Prototype vendor caches.
 
-This repository is the scaffold. `/ping` is the only command until the lookup and Escalation pull requests land. The bot is unofficial fan software. It is not affiliated with, endorsed by, or connected to Ubisoft or Massive Entertainment. Game names and stats belong to their owners.
+Unofficial fan software. Not affiliated with, endorsed by, or connected to Ubisoft or Massive Entertainment. Game names and stats belong to their owners.
 
 ## Item and rotation data
 
-Item text is compiled from [div2hub/game-data](https://github.com/div2hub/game-data) (CC-BY-4.0). That license covers the CSV arrangement, not the game. The catalog is pinned to a commit and built offline; the bot does not fetch `main` on startup. A commit pin is recorded when the catalog is vendored.
+Item text is compiled from [div2hub/game-data](https://github.com/div2hub/game-data) (CC-BY-4.0). That license covers the CSV arrangement, not the game. The CSVs are vendored under `data/upstream/` at commit `d70854574ba83b04ce9b508b17b75aca4f3ce017`. `scripts/build_catalog.py` reads those files and writes `data/catalog.json`. The bot loads the JSON only. It does not fetch `main` on startup.
 
 Escalation rotations come from the public ProtoTrack text feed when that feature lands. Posts credit ProtoTrack. This bot does not copy ProtoTrack's images or branding.
 
@@ -35,8 +35,11 @@ copy .env.example .env
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements-dev.txt
+python scripts/build_catalog.py
 python bot.py
 ```
+
+`data/catalog.json` is already committed, so the build step is only required after you replace the vendored CSVs.
 
 `.env` is gitignored. Never commit it.
 
@@ -48,6 +51,18 @@ GUILD_ID=
 The process has to stay running for the morning Escalation post. Running it on this PC is enough for v1.
 
 Leave `/escalation channel` unset and the bot will not post automatically. People can still run `/escalation` once that command exists. Point it at a channel with `/escalation channel set` in that channel (Manage Channels or Administrator on your account; the bot itself does not need Administrator).
+
+## Lookups
+
+Slash commands, with autocomplete:
+
+- `/brand` — 1 / 2 / 3-piece bonuses and the default core (weapon damage, armor, or skill tier).
+- `/gearset` — 2 / 3 / 4-piece bonuses. The 4-piece talent is resolved to its description. Chest and backpack talents are included when the catalog has them.
+- `/gear` — a named piece, a gear-set piece, or a named weapon: slot, brand or gear set, fixed talent, fixed attributes. A generic brand piece is returned only when that is the name you typed. If two pieces share a name, autocomplete includes the slot.
+- `/talent` — gear or weapon talent, plus the Perfect row when one exists. Slot or weapon types are shown when compatibility is not `N/A`.
+- `/exotic` — exotic weapon or gear, its talent, and its slot or weapon family.
+
+`/ping` reports latency. Escalation target loot is not in this build yet.
 
 ## Checks
 
