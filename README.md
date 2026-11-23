@@ -58,4 +58,4 @@ ruff format --check .
 pip-audit
 ```
 
-Pull requests need `lint`, `test`, `audit`, CodeQL (`analyze`), and SquidGate. SquidGate reads the `LLM_API_KEY` Actions secret. Add that secret in the repo settings; do not put it in a file or a workflow.
+Pull requests need `lint`, `test`, `audit`, and CodeQL (`analyze`).
