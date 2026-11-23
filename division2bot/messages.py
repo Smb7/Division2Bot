@@ -5,6 +5,7 @@ from __future__ import annotations
 import discord
 
 from division2bot.catalog import Brand, Exotic, GearHit, GearSet, Talent
+from division2bot.snapshot import Snapshot, next_daily_reset
 
 COLOR = discord.Color.from_rgb(184, 92, 36)
 FIELD_LIMIT = 1024
@@ -86,6 +87,29 @@ def exotic_embed(exotic: Exotic) -> discord.Embed:
     if exotic.attributes:
         embed.add_field(name="Fixed", value=_clip("\n".join(exotic.attributes)), inline=False)
     embed.set_footer(text=_clip(EXOTIC_FOOTER, 2048))
+    return embed
+
+
+def escalation_embed(snapshot: Snapshot, *, origin: str, note: str | None = None) -> discord.Embed:
+    """Render an already-parsed snapshot. ``origin`` is ``feed`` or ``override``."""
+    embed = discord.Embed(title=f"Escalation target loot {snapshot.date}", color=COLOR)
+    if origin == "override":
+        source_line = "Admin override. The feed is not used for this date."
+    else:
+        source_line = f"Source: {snapshot.source}. Rotation text from ProtoTrack."
+    reset = next_daily_reset(snapshot.date).strftime("%Y-%m-%d %H:%M UTC")
+    description = f"{source_line}\nNext reset: {reset}"
+    if note:
+        description = f"{description}\n{note}"
+    embed.description = _clip(description, 4096)
+    for item in snapshot.missions:
+        embed.add_field(name=_clip(item.mission, 256), value=_clip(item.loot), inline=False)
+    embed.add_field(name="Prototype weapon cache", value=_clip(snapshot.weapon_cache), inline=True)
+    embed.add_field(name="Prototype gear cache", value=_clip(snapshot.gear_cache), inline=True)
+    footer = DATA_FOOTER
+    if origin == "feed":
+        footer = f"Rotation: ProtoTrack public text feed. {DATA_FOOTER}"
+    embed.set_footer(text=_clip(footer, 2048))
     return embed
 
 

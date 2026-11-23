@@ -1,0 +1,17 @@
+Daily Escalation Target Loot
+Date: 2026-11-22
+Rotation: Weekly Escalation Rotation
+
+Missions:
+- The Art Museum: Umbra Initiative
+- Capitol Building: Future Initiative
+- Jefferson Plaza: Alps Summit Armaments
+- Lincoln Memorial: Electrique
+- Federal Emergency Bunker: Grupo Sombra S.A.
+
+Vendor Caches:
+- Weapons: Assault Rifles
+- Gear: Masks
+
+Last updated: 2026-11-22 09:00
+Source: ProtoTrack.gg

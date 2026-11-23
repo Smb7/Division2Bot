@@ -5,12 +5,15 @@ from __future__ import annotations
 import logging
 import os
 
+import aiosqlite
 import discord
 from discord import app_commands
 from discord.ext import commands
 from dotenv import load_dotenv
 
+from cogs.escalation import Escalation
 from cogs.lookup import Lookup
+from db import open_db
 from division2bot.catalog import Catalog, load_catalog
 
 log = logging.getLogger(__name__)
@@ -45,9 +48,12 @@ class DivisionBot(commands.Bot):
             help_command=None,
         )
         self.catalog = catalog
+        self.db: aiosqlite.Connection | None = None
 
     async def setup_hook(self) -> None:
+        self.db = await open_db()
         await self.add_cog(Lookup(self, self.catalog))
+        await self.add_cog(Escalation(self, self.db))
         self.tree.add_command(ping)
         guild_id = configured_guild_id()
         if guild_id is None:
@@ -57,6 +63,12 @@ class DivisionBot(commands.Bot):
         self.tree.copy_global_to(guild=guild)
         await self.tree.sync(guild=guild)
         log.info("Synced commands to guild %s", guild_id)
+
+    async def close(self) -> None:
+        if self.db is not None:
+            await self.db.close()
+            self.db = None
+        await super().close()
 
 
 @app_commands.command(name="ping", description="Check that the bot is online")
