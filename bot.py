@@ -10,6 +10,9 @@ from discord import app_commands
 from discord.ext import commands
 from dotenv import load_dotenv
 
+from cogs.lookup import Lookup
+from division2bot.catalog import Catalog, load_catalog
+
 log = logging.getLogger(__name__)
 
 
@@ -35,14 +38,16 @@ def configured_guild_id() -> int | None:
 
 
 class DivisionBot(commands.Bot):
-    def __init__(self) -> None:
+    def __init__(self, catalog: Catalog) -> None:
         super().__init__(
             command_prefix=commands.when_mentioned,
             intents=discord.Intents.default(),
             help_command=None,
         )
+        self.catalog = catalog
 
     async def setup_hook(self) -> None:
+        await self.add_cog(Lookup(self, self.catalog))
         self.tree.add_command(ping)
         guild_id = configured_guild_id()
         if guild_id is None:
@@ -64,7 +69,13 @@ def main() -> None:
     load_dotenv()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     token = require_token()
-    DivisionBot().run(token, log_handler=None)
+    try:
+        catalog = load_catalog()
+    except FileNotFoundError as exc:
+        raise SystemExit(
+            "data/catalog.json is missing. Run: python scripts/build_catalog.py"
+        ) from exc
+    DivisionBot(catalog).run(token, log_handler=None)
 
 
 if __name__ == "__main__":
