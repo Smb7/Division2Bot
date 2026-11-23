@@ -109,6 +109,14 @@ def test_catalog_lookups_use_real_item_text() -> None:
     assert generic.named is False
 
     assert catalog.find_gear("memento") is None
+    assert catalog.find_gear("bulldog") is None
+    bulldogs = catalog.match_gear("bulldog")
+    assert [piece.slot for piece in bulldogs] == ["Backpack", "Holster"]
+    holster = catalog.find_gear("Bulldog (Holster)")
+    assert holster is not None
+    assert holster.slot == "Holster"
+    assert holster.talent is not None
+    assert holster.talent.name == "Perfect Composure"
     elmo = catalog.find_exotic("st elmos")
     assert elmo is not None
     assert elmo.name == "St. Elmo's Engine"
@@ -126,6 +134,7 @@ def test_autocomplete_is_capped_and_exact_names_win() -> None:
     assert len(catalog.complete_gear("")) <= 25
     assert len(catalog.complete_talents("perfect")) <= 25
     assert catalog.complete_brands("grupo")[0] == "Grupo Sombra S.A."
+    assert set(catalog.complete_gear("bulldog")) == {"Bulldog (Backpack)", "Bulldog (Holster)"}
 
 
 def test_builder_skips_incomplete_rows_and_keeps_quoted_names(tmp_path: Path) -> None:

@@ -80,12 +80,20 @@ class Lookup(commands.Cog):
     async def gear(
         self, interaction: discord.Interaction, name: app_commands.Range[str, 1, 100]
     ) -> None:
-        found = self.catalog.find_gear(name)
-        if found is None:
+        matches = self.catalog.match_gear(name)
+        if not matches:
             await interaction.response.send_message("No piece matches that name.", ephemeral=True)
             return
+        if len(matches) > 1:
+            slots = ", ".join(piece.slot for piece in matches)
+            await interaction.response.send_message(
+                f"More than one piece is named {matches[0].name}. Choose a slot: {slots}.",
+                ephemeral=True,
+                allowed_mentions=_NO_MENTIONS,
+            )
+            return
         await interaction.response.send_message(
-            embed=gear_embed(found), allowed_mentions=_NO_MENTIONS
+            embed=gear_embed(matches[0]), allowed_mentions=_NO_MENTIONS
         )
 
     @gear.autocomplete("name")

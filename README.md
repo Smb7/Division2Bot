@@ -58,7 +58,7 @@ Slash commands, with autocomplete:
 
 - `/brand` — 1 / 2 / 3-piece bonuses and the default core (weapon damage, armor, or skill tier).
 - `/gearset` — 2 / 3 / 4-piece bonuses. The 4-piece talent is resolved to its description. Chest and backpack talents are included when the catalog has them.
-- `/gear` — a named piece, a gear-set piece, or a named weapon: slot, brand or gear set, fixed talent, fixed attributes. A generic brand piece is returned only when that is the name you typed.
+- `/gear` — a named piece, a gear-set piece, or a named weapon: slot, brand or gear set, fixed talent, fixed attributes. A generic brand piece is returned only when that is the name you typed. If two pieces share a name, autocomplete includes the slot.
 - `/talent` — gear or weapon talent, plus the Perfect row when one exists. Slot or weapon types are shown when compatibility is not `N/A`.
 - `/exotic` — exotic weapon or gear, its talent, and its slot or weapon family.
 

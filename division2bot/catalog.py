@@ -308,18 +308,42 @@ class Catalog:
         return (base, perfect)
 
     def find_gear(self, query: str) -> GearHit | None:
-        """Named pieces, gear-set pieces, named weapons, or an exact generic name."""
-        found = _best(query, [*self._focus_pieces(), *self.named_weapons], lambda item: item.name)
-        if found is not None:
-            return found
+        """Named pieces, gear-set pieces, named weapons, or an exact generic name.
+
+        A shared name such as Bulldog is not guessed. Use ``Name (Slot)`` or
+        :meth:`match_gear` when more than one piece matches.
+        """
+        matches = self.match_gear(query)
+        if len(matches) == 1:
+            return matches[0]
+        return None
+
+    def match_gear(self, query: str) -> tuple[GearHit, ...]:
+        """Return every piece the query identifies.
+
+        One result is a unique hit. More than one means the bare name is shared
+        and the slot was not chosen. ``Name (Slot)`` selects one of those pieces.
+        """
         query_key = normalize(query)
         if not query_key:
-            return None
+            return ()
+        labeled = _labeled_gear((*self._focus_pieces(), *self.named_weapons))
+        exact = tuple(piece for label, piece in labeled if normalize(label) == query_key)
+        if exact:
+            return exact
+        bare = tuple(piece for _, piece in labeled if normalize(piece.name) == query_key)
+        if bare:
+            return bare
+        ranked = _ranked(query, labeled, lambda item: item[0])
+        if ranked:
+            best = ranked[0][0]
+            return tuple(piece for score, (_, piece) in ranked if score == best)
         exotic_names = {normalize(item.name) for item in self.exotics}
-        for piece in self.gear:
-            if normalize(piece.name) == query_key and query_key not in exotic_names:
-                return piece
-        return None
+        return tuple(
+            piece
+            for piece in self.gear
+            if normalize(piece.name) == query_key and query_key not in exotic_names
+        )
 
     def find_exotic(self, query: str) -> Exotic | None:
         return _best(query, self.exotics, lambda item: item.name)
@@ -334,8 +358,8 @@ class Catalog:
         return _complete(query, [item.name for item in self.talents])
 
     def complete_gear(self, query: str) -> tuple[str, ...]:
-        names = [item.name for item in (*self._focus_pieces(), *self.named_weapons)]
-        return _complete(query, names)
+        labels = [label for label, _ in _labeled_gear((*self._focus_pieces(), *self.named_weapons))]
+        return _complete(query, labels)
 
     def complete_exotics(self, query: str) -> tuple[str, ...]:
         return _complete(query, [item.name for item in self.exotics])
@@ -687,6 +711,21 @@ def _best(query: str, items: Sequence[T], name_of: Callable[[T], str]) -> T | No
     if not ranked:
         return None
     return ranked[0][1]
+
+
+def _labeled_gear(pieces: Sequence[GearHit]) -> tuple[tuple[str, GearHit], ...]:
+    """Suffix the slot when more than one piece shares a normalized name."""
+    counts: dict[str, int] = {}
+    for piece in pieces:
+        key = normalize(piece.name)
+        counts[key] = counts.get(key, 0) + 1
+    labeled: list[tuple[str, GearHit]] = []
+    for piece in pieces:
+        if counts[normalize(piece.name)] > 1:
+            labeled.append((f"{piece.name} ({piece.slot})", piece))
+        else:
+            labeled.append((piece.name, piece))
+    return tuple(labeled)
 
 
 def _complete(query: str, names: list[str]) -> tuple[str, ...]:
