@@ -46,7 +46,7 @@ jobs:
           python -m pip install -r requirements-dev.txt
 
       - name: Pytest
-        run: pytest
+        run: python -m pytest
 
   audit:
     runs-on: ubuntu-latest

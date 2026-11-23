@@ -18,4 +18,8 @@ select = ["E", "F", "I", "B", "S"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 addopts = "-q"
+filterwarnings = [
+  "ignore:'audioop' is deprecated:DeprecationWarning",
+]
