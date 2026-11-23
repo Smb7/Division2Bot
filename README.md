@@ -50,7 +50,7 @@ GUILD_ID=
 
 The process has to stay running for the morning Escalation post. Running it on this PC is enough for v1.
 
-Leave `/escalation channel` unset and the bot will not post automatically. That command arrives with the auto-post change. People can still run `/escalation today`. An admin sets a bad or late day with `/escalation set` (Manage Channels or Administrator on your account; the bot itself does not need Administrator).
+Run `/escalation channel set` in the channel that should get the morning post, or pass a channel. `/escalation channel clear` turns it off. The bot needs View Channel, Send Messages, and Embed Links there. It does not need Administrator. Your account needs Manage Channels or Administrator to set the channel or override the day.
 
 ## Lookups
 
@@ -62,11 +62,13 @@ Slash commands, with autocomplete:
 - `/talent` — gear or weapon talent, plus the Perfect row when one exists. Slot or weapon types are shown when compatibility is not `N/A`.
 - `/exotic` — exotic weapon or gear, its talent, and its slot or weapon family.
 - `/escalation today` — the five missions, each mission's target loot, and both Prototype caches. Credits ProtoTrack when the text feed supplied the snapshot.
-- `/escalation set` — admin override when the feed is late or wrong. Requires Manage Channels or Administrator. The bot does not need Administrator.
+- `/escalation set` — admin override when the feed is late or wrong. Requires Manage Channels or Administrator. The bot does not need Administrator. If a channel is set, that override is posted there.
+- `/escalation channel set` — post the morning loot in this channel, or pass a channel. `/escalation channel clear` turns the automatic post off.
+- `/escalation watch add` — watch a brand, gear set, gear slot, or weapon type. `remove`, `list`, and `clear` manage that list. A match is mentioned on the morning post. The bot does not DM.
 
 Discord cannot run a parent slash command that also has subcommands, so the view is `/escalation today` rather than a bare `/escalation`.
 
-`/ping` reports latency. The morning auto-post and watch list are not in this build yet.
+`/ping` reports latency. Leave the channel unset and nothing is posted automatically. `/escalation today` still works.
 
 ## Checks
 

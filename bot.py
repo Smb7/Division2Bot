@@ -53,7 +53,7 @@ class DivisionBot(commands.Bot):
     async def setup_hook(self) -> None:
         self.db = await open_db()
         await self.add_cog(Lookup(self, self.catalog))
-        await self.add_cog(Escalation(self, self.db))
+        await self.add_cog(Escalation(self, self.db, self.catalog))
         self.tree.add_command(ping)
         guild_id = configured_guild_id()
         if guild_id is None:
