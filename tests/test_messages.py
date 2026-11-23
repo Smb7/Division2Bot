@@ -1,12 +1,16 @@
+from pathlib import Path
+
 from division2bot.catalog import load_catalog
 from division2bot.messages import (
     FIELD_LIMIT,
     brand_embed,
+    escalation_embed,
     exotic_embed,
     gear_embed,
     gear_set_embed,
     talent_embed,
 )
+from division2bot.snapshot import parse_target_loot
 
 
 def test_brand_embed_uses_humanized_bonuses() -> None:
@@ -64,3 +68,35 @@ def test_gear_and_talent_and_exotic_embeds() -> None:
     assert exotic.footer is not None
     assert "One exotic weapon and one exotic gear piece" in exotic.footer.text
     assert all(len(field.value) <= FIELD_LIMIT for field in exotic.fields)
+
+
+def test_escalation_embed_credits_the_feed_and_labels_an_override() -> None:
+    text = (Path(__file__).resolve().parent / "fixtures" / "target-loot-current.txt").read_text(
+        encoding="utf-8"
+    )
+    snapshot = parse_target_loot(text)
+    assert snapshot is not None
+    feed = escalation_embed(snapshot, origin="feed")
+    assert feed.title == "Escalation target loot 2026-11-22"
+    assert (
+        len(
+            [
+                field
+                for field in feed.fields
+                if field.name not in {"Prototype weapon cache", "Prototype gear cache"}
+            ]
+        )
+        == 5
+    )
+    assert any(field.value == "Assault Rifles" for field in feed.fields)
+    assert any(field.value == "Masks" for field in feed.fields)
+    assert "ProtoTrack" in (feed.footer.text or "")
+    assert "08:00 UTC" in (feed.description or "") or "08:00 UTC" in (
+        feed.description or ""
+    ).replace("08:00", "08:00")
+    assert "Next reset: 2026-11-23 08:00 UTC" in (feed.description or "")
+
+    override = escalation_embed(snapshot, origin="override")
+    assert override.description is not None
+    assert "Admin override" in override.description
+    assert "ProtoTrack" not in (override.footer.text or "")

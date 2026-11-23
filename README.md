@@ -50,7 +50,7 @@ GUILD_ID=
 
 The process has to stay running for the morning Escalation post. Running it on this PC is enough for v1.
 
-Leave `/escalation channel` unset and the bot will not post automatically. People can still run `/escalation` once that command exists. Point it at a channel with `/escalation channel set` in that channel (Manage Channels or Administrator on your account; the bot itself does not need Administrator).
+Leave `/escalation channel` unset and the bot will not post automatically. That command arrives with the auto-post change. People can still run `/escalation today`. An admin sets a bad or late day with `/escalation set` (Manage Channels or Administrator on your account; the bot itself does not need Administrator).
 
 ## Lookups
 
@@ -61,8 +61,12 @@ Slash commands, with autocomplete:
 - `/gear` — a named piece, a gear-set piece, or a named weapon: slot, brand or gear set, fixed talent, fixed attributes. A generic brand piece is returned only when that is the name you typed. If two pieces share a name, autocomplete includes the slot.
 - `/talent` — gear or weapon talent, plus the Perfect row when one exists. Slot or weapon types are shown when compatibility is not `N/A`.
 - `/exotic` — exotic weapon or gear, its talent, and its slot or weapon family.
+- `/escalation today` — the five missions, each mission's target loot, and both Prototype caches. Credits ProtoTrack when the text feed supplied the snapshot.
+- `/escalation set` — admin override when the feed is late or wrong. Requires Manage Channels or Administrator. The bot does not need Administrator.
 
-`/ping` reports latency. Escalation target loot is not in this build yet.
+Discord cannot run a parent slash command that also has subcommands, so the view is `/escalation today` rather than a bare `/escalation`.
+
+`/ping` reports latency. The morning auto-post and watch list are not in this build yet.
 
 ## Checks
 
